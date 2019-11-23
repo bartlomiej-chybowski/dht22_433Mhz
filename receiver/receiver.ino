@@ -1,24 +1,22 @@
-#include <RH_ASK.h>
-#include <SPI.h>
+#include <ELECHOUSE_CC1101.h>
 
-RH_ASK driver(2000, 7, 8, 9, false);
+byte buffer[100] = {0};
 
 void setup() {
   Serial.begin(9600);
   Serial.println("DHT22 sensor testing");
 
-  if (!driver.init())
-    Serial.println("init failed");
+  ELECHOUSE_cc1101.Init(F_433);
+  ELECHOUSE_cc1101.SetReceive();
 }
 
 
 void loop() {
-  uint8_t buf[4];
-  uint8_t buflen = sizeof(buf);
-  if (driver.recv(buf, &buflen)) // Non-blocking
+  if (ELECHOUSE_cc1101.CheckReceiveFlag()) 
   {
-    int i;
-    // Message with a good checksum received, dump it.
+    ELECHOUSE_cc1101.ReceiveData(buffer);
+    String buf((char*) buffer);
+
     Serial.print("Temperatura: ");
     Serial.print((char)buf[0]);
     Serial.print((char)buf[1]);
@@ -26,5 +24,7 @@ void loop() {
     Serial.print((char)buf[2]);
     Serial.print((char)buf[3]);
     Serial.println("%");
+    
+    ELECHOUSE_cc1101.SetReceive();
   }
 }

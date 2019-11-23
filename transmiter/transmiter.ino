@@ -1,13 +1,9 @@
 #include <TimedAction.h>
 #include <DHT.h>
+#include <ELECHOUSE_CC1101.h>
 
-#include <RH_ASK.h>
-#include <SPI.h> 
-
-#define DHTPIN 2
+#define DHTPIN 3
 #define DHTTYPE DHT22
-
-RH_ASK driver(2000, 7, 8, 9, false);
 
 DHT dht(DHTPIN, DHTTYPE);
  
@@ -38,21 +34,21 @@ TimedAction readSensor = TimedAction(2000, getSensorReadings);
 void setup() {
   Serial.begin(9600);
   Serial.println("DHT22 sensor testing");
-  
+  ELECHOUSE_cc1101.Init(F_433);
   dht.begin();
   getSensorReadings();
-
-  if (!driver.init())
-    Serial.println("init failed");
 }
 
 
 void loop() {
   readSensor.check();
 
-  const char msg[4];
+  char msg[4];
   sprintf(msg, "%02u%02u", t, h);
-  driver.send((uint8_t *)msg, strlen(msg));
-  driver.waitPacketSent();
+  Serial.println(msg);
+  
+  
+  ELECHOUSE_cc1101.SendData((byte*)msg, 4);
+  
   delay(1000);
 }
